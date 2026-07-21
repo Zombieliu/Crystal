@@ -21,7 +21,10 @@ namespace Client.Resolution
             {
                 List<string> list = new();
 
-                DEVMODE vDevMode = new DEVMODE();
+                DEVMODE vDevMode = new DEVMODE
+                {
+                    dmSize = (short)Marshal.SizeOf(typeof(DEVMODE))
+                };
                 int i = 0;
                 while (EnumDisplaySettings(null, i, ref vDevMode))
                 {
