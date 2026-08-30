@@ -4144,6 +4144,40 @@ namespace Server.MirObjects
                         Enqueue(GetUpdateInfo());
                         Broadcast(GetUpdateInfo());
                         break;
+                    case "LIGHTS":
+                        if (!IsGM) return;
+
+                        if (parts.Length < 2)
+                        {
+                            ReceiveChat(string.Format("World light is currently: {0}. Usage: @lights <day|night|dawn|evening|auto>", Envir.Lights), ChatType.Hint);
+                            return;
+                        }
+
+                        switch (parts[1].ToUpper())
+                        {
+                            case "DAY":
+                                Envir.LightsOverride = LightSetting.Day;
+                                break;
+                            case "NIGHT":
+                                Envir.LightsOverride = LightSetting.Night;
+                                break;
+                            case "DAWN":
+                                Envir.LightsOverride = LightSetting.Dawn;
+                                break;
+                            case "EVENING":
+                            case "EVEN":
+                                Envir.LightsOverride = LightSetting.Evening;
+                                break;
+                            default:
+                            case "AUTO":
+                            case "RESET":
+                                Envir.LightsOverride = null;
+                                break;
+                        }
+
+                        Envir.AdjustLights();
+                        ReceiveChat(string.Format("World light set to: {0}", Envir.Lights), ChatType.Hint);
+                        break;
                     default:
                         break;
                 }
