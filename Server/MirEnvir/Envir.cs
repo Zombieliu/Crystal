@@ -149,6 +149,12 @@ namespace Server.MirEnvir
         public List<HeroObject> Heroes = new List<HeroObject>();
 
         public LightSetting Lights;
+        /// <summary>
+        /// Optional GM override for the global day/night light. When set, AdjustLights
+        /// keeps this value instead of following the automatic UTC in-game cycle,
+        /// until a GM clears it (null) to restore the normal cycle. Null = automatic.
+        /// </summary>
+        public LightSetting? LightsOverride;
         public LinkedList<MapObject> Objects = new LinkedList<MapObject>();
         public Dictionary<int, NPCScript> Scripts = new Dictionary<int, NPCScript>();
         public Dictionary<string, Timer> Timers = new Dictionary<string, Timer>();
@@ -2287,19 +2293,26 @@ namespace Server.MirEnvir
             }
         }
 
-        private void AdjustLights()
+        internal void AdjustLights()
         {
             var oldLights = Lights;
 
-            var hours = Now.Hour * 2 % 24;
-            if (hours == 6 || hours == 7)
-                Lights = LightSetting.Dawn;
-            else if (hours >= 8 && hours <= 15)
-                Lights = LightSetting.Day;
-            else if (hours == 16 || hours == 17)
-                Lights = LightSetting.Evening;
+            if (LightsOverride.HasValue)
+            {
+                Lights = LightsOverride.Value;
+            }
             else
-                Lights = LightSetting.Night;
+            {
+                var hours = Now.Hour * 2 % 24;
+                if (hours == 6 || hours == 7)
+                    Lights = LightSetting.Dawn;
+                else if (hours >= 8 && hours <= 15)
+                    Lights = LightSetting.Day;
+                else if (hours == 16 || hours == 17)
+                    Lights = LightSetting.Evening;
+                else
+                    Lights = LightSetting.Night;
+            }
 
             if (oldLights == Lights) return;
 
